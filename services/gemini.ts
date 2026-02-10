@@ -8,6 +8,8 @@ const parseFormStructure = async (text: string): Promise<FormStructure> => {
     const prompt = `
       You are an expert data extraction agent. Analyze the following document text and extract the structure for a fillable PDF form.
       
+      The input might be a raw natural language document OR a structured markdown specification (e.g. starting with ## pdf_spec).
+      
       Input Text:
       """
       ${text}
@@ -30,10 +32,11 @@ const parseFormStructure = async (text: string): Promise<FormStructure> => {
       For "Submission Type: [Option1, Option2]", create a dropdown.
       For "Device Name: [...]", create a text field.
       For "[ ]" or "Checkbox", create a checkbox.
+      For lists like "1. Full Name *Required*", create a text field.
     `;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-latest',
+      model: 'gemini-3-flash-preview',
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
@@ -46,7 +49,7 @@ const parseFormStructure = async (text: string): Promise<FormStructure> => {
   } catch (error) {
     console.error("Gemini Parsing Error:", error);
     // Fallback Mock for demo purposes if API fails or key is missing
-    throw new Error("Failed to parse form structure. Please check your API Key.");
+    throw new Error("Failed to parse form structure. Please check your API Key and Model availability.");
   }
 };
 
@@ -74,7 +77,7 @@ const generatePythonCode = async (structure: FormStructure): Promise<string> => 
     `;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-latest',
+      model: 'gemini-3-flash-preview',
       contents: prompt,
     });
 
@@ -85,7 +88,7 @@ const generatePythonCode = async (structure: FormStructure): Promise<string> => 
 
   } catch (error) {
     console.error("Gemini Code Gen Error:", error);
-    return "# Error generating code. Please check API Key.";
+    return "# Error generating code. Please check API Key and Model availability.";
   }
 };
 

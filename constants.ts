@@ -16,6 +16,39 @@ Select the type of submission you are filing.
 - Confirm Accuracy: [ ] I certify that the information provided is true and correct.
 `;
 
+export const DEFAULT_PDF_SPEC = `## pdf_spec 
+
+- Model: gemini-2.5-flash
+- Max tokens: 12000
+- Input hash: \`fa660cc4ed5d\`
+- Generated at: 2026-02-10 06:08 UTC
+
+### Content
+# Application Form (Mock Sample)
+
+## Section A — Applicant Information
+1. Full Name *Required*
+2. Date of Birth (MM/DD/YYYY)
+3. Email Address *Required*
+4. Phone Number
+5. Address (Street, City, State/Province, Postal Code)
+
+## Section B — Submission Details
+1. Submission Type (choose one): 510(k), PMA, De Novo
+2. Device Name *Required*
+3. Submission Date (default: today)
+
+## Section C — Declarations
+- [ ] I confirm the information provided is accurate. *Required*
+- [ ] I agree to the terms and conditions.
+
+## Section D — Additional Notes
+Provide any supporting details (multi-line).
+
+## Section E — Signature
+Signature Name (typed)
+Date`;
+
 export const MOCK_PYTHON_CODE = `from fpdf import FPDF
 import datetime
 

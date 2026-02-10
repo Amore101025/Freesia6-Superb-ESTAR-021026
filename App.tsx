@@ -3,7 +3,7 @@ import { Header } from './components/Header';
 import { InputSection } from './components/InputSection';
 import { FormPreview } from './components/FormPreview';
 import { CodePreview } from './components/CodePreview';
-import { DEFAULT_SAMPLE_CONTENT, MOCK_PYTHON_CODE } from './constants';
+import { DEFAULT_SAMPLE_CONTENT, DEFAULT_PDF_SPEC, MOCK_PYTHON_CODE } from './constants';
 import { GeminiService } from './services/gemini';
 import { generateClientSidePDF } from './services/pdfGenerator';
 import { FormStructure, FormField, FieldType } from './types';
@@ -14,27 +14,38 @@ enum Tab {
   CODE = 'code'
 }
 
+type InputMode = 'raw' | 'spec';
+
 const App: React.FC = () => {
-  const [inputText, setInputText] = useState(DEFAULT_SAMPLE_CONTENT);
+  // Input State
+  const [inputMode, setInputMode] = useState<InputMode>('spec');
+  const [rawText, setRawText] = useState(DEFAULT_SAMPLE_CONTENT);
+  const [specText, setSpecText] = useState(DEFAULT_PDF_SPEC);
+  
+  // Output/Processing State
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [structure, setStructure] = useState<FormStructure | null>(null);
   const [pythonCode, setPythonCode] = useState<string>("");
   const [activeTab, setActiveTab] = useState<Tab>(Tab.PREVIEW);
   const [error, setError] = useState<string | null>(null);
 
-  // Load initial mock state for better UX on first load
+  // Derived state for the active input
+  const activeInputText = inputMode === 'raw' ? rawText : specText;
+  const handleActiveInputChange = (val: string) => {
+      if (inputMode === 'raw') setRawText(val);
+      else setSpecText(val);
+  };
+
   useEffect(() => {
-    // We simulate a "pre-analysis" of the default content
-    // In a real app we might just start empty or analyze on mount.
-    // For this demo, let's keep it empty until user interacts or maybe parse mock immediately.
+    // We default to the spec tab with the spec loaded.
   }, []);
 
   const handleAnalyze = async () => {
     setIsAnalyzing(true);
     setError(null);
     try {
-      // 1. Analyze structure
-      const parsedStructure = await GeminiService.parseFormStructure(inputText);
+      // 1. Analyze structure using the currently active text
+      const parsedStructure = await GeminiService.parseFormStructure(activeInputText);
       setStructure(parsedStructure);
 
       // 2. Generate Python Code based on that structure
@@ -76,8 +87,6 @@ const App: React.FC = () => {
     newFields[index] = updatedField;
     const newStructure = { ...structure, fields: newFields };
     setStructure(newStructure);
-    // Note: In a full implementation, we would regenerate Python code here too, 
-    // or debouce a request to update it.
   };
 
   const handleDeleteField = (index: number) => {
@@ -109,10 +118,12 @@ const App: React.FC = () => {
         {/* Left Panel: Input */}
         <div className="w-full lg:w-1/2 flex flex-col min-h-[500px] lg:h-[calc(100vh-140px)]">
           <InputSection 
-            value={inputText} 
-            onChange={setInputText} 
+            value={activeInputText} 
+            onChange={handleActiveInputChange} 
             isProcessing={isAnalyzing}
             onAnalyze={handleAnalyze}
+            mode={inputMode}
+            onModeChange={setInputMode}
           />
           {error && (
               <div className="mt-4 p-4 bg-red-50 text-red-700 border border-red-200 rounded-lg text-sm">
