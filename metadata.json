@@ -1,0 +1,5 @@
+{
+  "name": "FormAgent AI",
+  "description": "An agentic AI system that transforms application forms into dynamic, fillable PDFs and generates the corresponding Python generation code.",
+  "requestFramePermissions": []
+}
